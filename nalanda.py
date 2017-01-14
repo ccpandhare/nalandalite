@@ -1,6 +1,8 @@
 import requests
 #import sys #not needed
 import re
+import sched, time, datetime
+s = sched.scheduler(time.time, time.sleep)
 
 credentials = open('credentials.txt','r').read().split('\n')
 
@@ -33,6 +35,7 @@ def main():
     overviewfilter = re.compile('<h2 id="instance-44796-header">Course overview</h2></div></div><div class="content">([^<>]*)</div>', re.I)
 
     users = open('users.txt','r').read().split('\n')
+    log = open('userlog.txt','a')
 
     print "Online Users:"
     i = 0
@@ -40,6 +43,9 @@ def main():
         if not user in users:
             users.extend([user])
             i = i+1
+        stamp = datetime.datetime.now().strftime("%Y-%m-%d %I:%M:%S %p ")
+        if user != "Chinmay Pandhare":
+            log.write(stamp+user+"\n")
         print user
     print "Courses:"
     for link in coursefilter.findall(text):
@@ -52,6 +58,12 @@ def main():
     open('users.txt','w').write(usersupdated)
     print i," users added"
 
+def do_something(sc):
+    print "Updating..."
+    main()
+    s.enter(270, 1, do_something, (sc,))
 
 if __name__ == '__main__':
     main()
+    s.enter(270, 1, do_something, (s,))
+    s.run()
