@@ -28,11 +28,30 @@ def main():
 
     #<a href="http://nalanda.bits-pilani.ac.in/user/view.php?id=8294&amp;course=1" title="1 sec"><img src="http://nalanda.bits-pilani.ac.in/theme/image.php/formfactor/core/1470067502/u/f2" alt="" title="" class="userpicture defaultuserpic" width="16" height="16" />Chinmay Pandhare . .</a>
     userfilter = re.compile('<a[^"]*href="[^"]*user\/view.php[^"]*"[^<>]*><img[^<>]*/>([^<>]*) \. \.</a>', re.I)
+
+    #<div id="inst44796" class="block_course_overview  block"
+    overviewfilter = re.compile('<h2 id="instance-44796-header">Course overview</h2></div></div><div class="content">([^<>]*)</div>', re.I)
+
+    users = open('users.txt','r').read().split('\n')
+
     print "Online Users:"
+    i = 0
     for user in userfilter.findall(text):
+        if not user in users:
+            users.extend([user])
+            i = i+1
         print user
     print "Courses:"
     for link in coursefilter.findall(text):
         print link
+    print "Course overview:"
+    for content in overviewfilter.findall(text):
+        print content
+
+    usersupdated = "\n".join(users)
+    open('users.txt','w').write(usersupdated)
+    print i," users added"
+
+
 if __name__ == '__main__':
     main()
