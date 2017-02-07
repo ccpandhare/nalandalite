@@ -96,9 +96,9 @@ def main():
     text = r.text
 
     #filter definitions
-    coursefilter = re.compile('<a[^"]*href="[^"]*course\/view.php\?id=([^"]*)[^"]*"', re.I)
+    coursefilter = re.compile('<a[^>]*href="[^"]*course\/view.php\?id=([^"]*)[^"]*"[^>]*>([^<>]*)</a>', re.I)
     #<a href="http://nalanda.bits-pilani.ac.in/user/view.php?id=8294&amp;course=1" title="1 sec"><img src="http://nalanda.bits-pilani.ac.in/theme/image.php/formfactor/core/1470067502/u/f2" alt="" title="" class="userpicture defaultuserpic" width="16" height="16" />Chinmay Pandhare . .</a>
-    userfilter = re.compile('<a[^"]*href="[^"]*user\/view.php[^"]*"[^<>]*><img[^<>]*/>([^<>]*) \. \.</a>', re.I)
+    userfilter = re.compile('<a[^>]*href="[^"]*user\/view.php[^"]*"[^<>]*><img[^<>]*/>([^<>]*) \. \.</a>', re.I)
     #<div id="inst44796" class="block_course_overview  block"
     overviewfilter = re.compile('<h2[^<>]*>Course overview</h2></div></div><div class="content">([^<>]*)</div>', re.I)
 
@@ -110,7 +110,7 @@ def main():
     if "courses" in arguements or "all" in arguements or len(arguements) == 0:
         print "\n\tCourses:"
         for link in coursefilter.findall(text):
-            print "\t\t"+link
+            print "\t\t"+link[0]+" "+link[1]
 
     if "overview" in arguements or "all" in arguements or len(arguements) == 0:
         print "\n\tCourse overview:"
