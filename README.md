@@ -13,7 +13,7 @@ Are you a gen BITSian? Do you download lecture slides just before your Compre/Mi
 6. That's All!! Everytime you run _nalanda.py_, your lecture slides will be updated.
 7. A directory named COURSES will be created which will hold all your courses.
 
-#### credentials.txt:
+#### nalandalite/credentials.txt:
 ```
 ^f201xabc^
 ^password^
