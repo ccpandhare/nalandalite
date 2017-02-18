@@ -1,5 +1,6 @@
-import sys, re
+import sys, re, os, cgi
 import sched, time, datetime
+from bs4 import BeautifulSoup
 
 #options
 arguements = sys.argv
@@ -45,6 +46,23 @@ except:
     sys.exit("\n\tModule ERROR:\n\t\'Requests\' module not installed.\n\tEnter \'pip install requests\' on the command line and try again.\n")
 if debug == True:
     print "\tModule exists.\n"
+
+filetypes = {
+"application/pdf": "pdf",
+"application/vnd.openxmlformats-officedocument.presentationml.presentation": "ppt",
+"application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+"application/vnd.openxmlformats-officedocument.spreadsheetml.template": "xltx",
+"application/vnd.ms-excel.sheet.macroEnabled.12": "xlsm",
+"application/vnd.ms-excel.template.macroEnabled.12": "xltm",
+"application/vnd.ms-excel": "xls",
+"application/msword": "doc",
+"text/html; charset=utf-8": "html",
+"image/gif": "gif",
+"image/jpg": "jpg",
+"image/png": "png",
+"image/svg": "svg"
+}
 
 def main():
     #definitions
@@ -95,27 +113,111 @@ def main():
     debugger("\tHomepage loaded\n",1)
     text = r.text
 
+    soup = BeautifulSoup(text,"html.parser")
     #filter definitions
-    coursefilter = re.compile('<a[^>]*href="[^"]*course\/view.php\?id=([^"]*)[^"]*"[^>]*>([^<>]*)</a>', re.I)
-    #<a href="http://nalanda.bits-pilani.ac.in/user/view.php?id=8294&amp;course=1" title="1 sec"><img src="http://nalanda.bits-pilani.ac.in/theme/image.php/formfactor/core/1470067502/u/f2" alt="" title="" class="userpicture defaultuserpic" width="16" height="16" />Chinmay Pandhare . .</a>
-    userfilter = re.compile('<a[^>]*href="[^"]*user\/view.php[^"]*"[^<>]*><img[^<>]*/>([^<>]*) \. \.</a>', re.I)
-    #<div id="inst44796" class="block_course_overview  block"
-    overviewfilter = re.compile('<h2[^<>]*>Course overview</h2></div></div><div class="content">([^<>]*)</div>', re.I)
+    divs = soup.find_all("div", {"class": "course_title"})
+    courses = []
+    for div in divs:
+        namearray = []
+        array = re.compile("[A-Z]*",re.I).findall(re.compile(" \(.*\)$").sub("",div.find("a").string))
+        for a in array:
+            if a != "":
+                namearray += [a]
+        foldername = "_".join(namearray)
+
+        courses += [[re.compile('....$').findall(div.find("a")['href'])[0] , div.find("a").string , foldername]]
+
+    divs = soup.find_all("div", {"class": "user"})
+    users = []
+    for div in divs:
+        try:
+            users += [[re.compile('id=(....)').findall(div.find("a")['href'])[0] , re.compile('([^<>]*) \. \.$').findall(div.find("a").text)[0]]]
+        except IndexError:
+            indexError = True
+
 
     if "users" in arguements or "all" in arguements or len(arguements) == 0:
         print "\n\tOnline Users:"
-        for user in userfilter.findall(text):
-            print "\t\t"+user
+        for user in users:
+            print "\t\t"+user[0] + " " + user[1]
 
     if "courses" in arguements or "all" in arguements or len(arguements) == 0:
         print "\n\tCourses:"
-        for link in coursefilter.findall(text):
-            print "\t\t"+link[0]+" "+link[1]
+        for course in courses:
+            print "\t\t"+course[0] + " " + course[1] + " " + str(os.path.isdir("COURSES/"+course[2]))
 
-    if "overview" in arguements or "all" in arguements or len(arguements) == 0:
-        print "\n\tCourse overview:"
-        for content in overviewfilter.findall(text):
-            print "\t\t"+content
+    if "coursedirs" in arguements or "all" in arguements or "getslides" in arguements or len(arguements) == 0:
+        print "\n\tCourse Directories:"
+        if not os.path.isdir("COURSES"):
+            debugger("\t\tmaking directory COURSES",0)
+            try:
+                os.makedirs("COURSES")
+            except:
+                sys.exit("Could not make directory COURSES. Please check permissions.")
+            debugger("\t\tMade directory COURSES.\n",1)
+
+        for course in courses:
+            print "\t\t" + course[2] + " exists: " + str(os.path.isdir("COURSES/"+course[2]))
+            if not os.path.isdir("COURSES/"+course[2]):
+                debugger("\t\t\tmaking directory COURSES/"+course[2],0)
+                try:
+                    os.makedirs("COURSES/"+course[2])
+                except:
+                    print "Could not make directory COURSES/"+course[2]+". Please check permissions."
+                debugger("\t\t\tMade directory COURSES/"+course[2],1)
+    if "getslides" in arguements or "all" in arguements or len(arguements) == 0:
+        print "\n\tGetting Slides:"
+        for course in courses:
+            articles = []
+            link = "http://nalanda.bits-pilani.ac.in/course/view.php?id="+course[0]
+            print "\t\t"+course[1]
+            coursesoup = BeautifulSoup(session.get(link).text,"html.parser")
+            liss = coursesoup.find("ul",{"class": "topics"}).find_all("li", class_= "section main clearfix")
+            for lis in liss:
+                for li in lis.find_all("li"):
+                    if str(lis.find("h3")) != "None":
+                        if str(li.find("a")) != "None":
+                            #print "\n\t\t\t"+li['id']
+                            heading = str(lis.find("h3").text)+"\n"
+                            for a in li.find_all("a"):
+                                articlelink = str(a['href'])
+                                articletitle = str(a.text.replace(a.find("span", {"class": "accesshide"}).text,""))
+                                articletype = str(a.find("span", {"class": "accesshide"}).text.replace(" ",""))
+                            if str(li.find("span", {"class": "resourcelinkdetails"})) != "None":
+                                articledetails = str(li.find("span", {"class": "resourcelinkdetails"}).text)
+                            else:
+                                articledetails = "None"
+                            articles += [[str(heading),str(articletype),str(articletitle),str(articlelink),str(articledetails)]]
+            for article in articles:
+                head = session.head(article[3])
+                if re.compile("PDF").findall(article[4]) == ['PDF']:
+                    res = session.get(article[3])
+                    resourceobject = BeautifulSoup(res.text,"html.parser").find("object",{"id": "resourceobject"})
+                    resourcelink = resourceobject['data']
+                else:
+                    resourcelink = article[3]
+                    if article[1] == "File":
+                        resourcelink = session.head(resourcelink).headers['Location']
+
+                file_to_download = session.head(resourcelink)
+                try:
+                    val, resourcename = cgi.parse_header(file_to_download.headers['Content-Disposition'])
+                    resourcename = resourcename['filename']
+                except:
+                    resourcename = "file.html"
+                #resourcename = re.compile("id=(....)").findall(article[3])[0] + "-" + resourcename;
+                #print "\t\t\t\t"+resourcename
+
+                path_to_file = 'COURSES/'+course[2]+'/'+resourcename
+                if not os.path.exists(path_to_file):
+                    print "\t\t\t"+article[2]
+                    print "\t\t\t"+article[4]
+                    print "\t\t\t\t"+resourcename
+                    r = session.get(resourcelink)
+                    with open(path_to_file, 'wb') as f:
+                        for chunk in r.iter_content(chunk_size=1024):
+                            if chunk: # filter out keep-alive new chunks
+                                f.write(chunk)
 
     if not (rT == False):
         print "\n\tUpdating in " , rW
