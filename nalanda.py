@@ -1,6 +1,5 @@
 import sys, re, os, cgi
 import sched, time, datetime
-from bs4 import BeautifulSoup
 
 #options
 arguements = sys.argv
@@ -43,26 +42,20 @@ if debug == True:
 try:
     import requests
 except:
-    sys.exit("\n\tModule ERROR:\n\t\'Requests\' module not installed.\n\tEnter \'pip install requests\' on the command line and try again.\n")
+    sys.exit("\n\tModule ERROR:\n\t\'Requests\' module not installed.\n\tEnter \'sudo pip install requests\' on the command line and try again.\n")
 if debug == True:
     print "\tModule exists.\n"
 
-filetypes = {
-"application/pdf": "pdf",
-"application/vnd.openxmlformats-officedocument.presentationml.presentation": "ppt",
-"application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-"application/vnd.openxmlformats-officedocument.spreadsheetml.template": "xltx",
-"application/vnd.ms-excel.sheet.macroEnabled.12": "xlsm",
-"application/vnd.ms-excel.template.macroEnabled.12": "xltm",
-"application/vnd.ms-excel": "xls",
-"application/msword": "doc",
-"text/html; charset=utf-8": "html",
-"image/gif": "gif",
-"image/jpg": "jpg",
-"image/png": "png",
-"image/svg": "svg"
-}
+#check for and import beautifulsoup4 module
+if debug == True:
+    print "\n\tChecking beautifulsoup4 module"
+try:
+    from bs4 import BeautifulSoup
+except:
+    sys.exit("\n\tModule ERROR:\n\t\'BeautifulSoup\' module not installed.\n\tEnter \'sudo pip install beautifulsoup4\' on the command line and try again.\n")
+if debug == True:
+    print "\tModule exists.\n"
+
 
 def main():
     #definitions
@@ -101,7 +94,7 @@ def main():
     debugger("\n\tLogging in.",0)
     r = session.post(loginurl, data=login_data)
     if re.compile('<div class="logininfo">[^<>]*<a[^<>]*>([^<>]*)</a>', re.I).findall(r.text) == []:
-        sys.exit("\n\tAuthentication Error.\n\tPlease check the credentials.txt file.\n\tThe first line of the file must have your username within double quotes.\n\tThe second line must have your password within double quotes.\n")
+        sys.exit("\n\tAuthentication Error.\n\tPlease check the credentials.txt file.\n\tThe first line of the file must have your username within two ^ characters.\n\tThe second line must have your password within two ^ characters.\n")
     debugger("\tLogged in Successfully.\n",1)
 
     #try and get homepage data
@@ -136,7 +129,7 @@ def main():
             indexError = True
 
 
-    if "users" in arguements or "all" in arguements or len(arguements) == 0:
+    if "users" in arguements or "all" in arguements:
         print "\n\tOnline Users:"
         for user in users:
             print "\t\t"+user[0] + " " + user[1]
@@ -144,9 +137,10 @@ def main():
     if "courses" in arguements or "all" in arguements or len(arguements) == 0:
         print "\n\tCourses:"
         for course in courses:
-            print "\t\t"+course[0] + " " + course[1] + " " + str(os.path.isdir("COURSES/"+course[2]))
+            print "\t\t"+course[1]
 
     if "coursedirs" in arguements or "all" in arguements or "getslides" in arguements or len(arguements) == 0:
+        dirs_made = 0
         print "\n\tCourse Directories:"
         if not os.path.isdir("COURSES"):
             debugger("\t\tmaking directory COURSES",0)
@@ -154,19 +148,23 @@ def main():
                 os.makedirs("COURSES")
             except:
                 sys.exit("Could not make directory COURSES. Please check permissions.")
+            dirs_made += 1
             debugger("\t\tMade directory COURSES.\n",1)
 
         for course in courses:
-            print "\t\t" + course[2] + " exists: " + str(os.path.isdir("COURSES/"+course[2]))
+            debugger("\t\t" + course[2] + " exists: " + str(os.path.isdir("COURSES/"+course[2])),0)
             if not os.path.isdir("COURSES/"+course[2]):
                 debugger("\t\t\tmaking directory COURSES/"+course[2],0)
                 try:
                     os.makedirs("COURSES/"+course[2])
                 except:
                     print "Could not make directory COURSES/"+course[2]+". Please check permissions."
+                dirs_made += 1
                 debugger("\t\t\tMade directory COURSES/"+course[2],1)
+        print "\t\t"+str(dirs_made)+" directories made"
+
     if "getslides" in arguements or "all" in arguements or len(arguements) == 0:
-        print "\n\tGetting Slides:"
+        print "\n\tGetting Slides: (Please Be Patient. This may take some time)"
         for course in courses:
             articles = []
             link = "http://nalanda.bits-pilani.ac.in/course/view.php?id="+course[0]
@@ -188,6 +186,7 @@ def main():
                             else:
                                 articledetails = "None"
                             articles += [[str(heading),str(articletype),str(articletitle),str(articlelink),str(articledetails)]]
+            num_downloaded = 0
             for article in articles:
                 head = session.head(article[3])
                 if re.compile("PDF").findall(article[4]) == ['PDF']:
@@ -206,18 +205,19 @@ def main():
                 except:
                     resourcename = "file.html"
                 #resourcename = re.compile("id=(....)").findall(article[3])[0] + "-" + resourcename;
-                #print "\t\t\t\t"+resourcename
 
                 path_to_file = 'COURSES/'+course[2]+'/'+resourcename
                 if not os.path.exists(path_to_file):
-                    print "\t\t\t"+article[2]
-                    print "\t\t\t"+article[4]
-                    print "\t\t\t\t"+resourcename
+                    debugger("\t\t\t"+article[2],0)
+                    debugger("\t\t\t"+article[4],0)
+                    debugger("\t\t\t\t"+resourcename,1)
                     r = session.get(resourcelink)
                     with open(path_to_file, 'wb') as f:
                         for chunk in r.iter_content(chunk_size=1024):
                             if chunk: # filter out keep-alive new chunks
                                 f.write(chunk)
+                    num_downloaded += 1
+            print "\t\t\t"+str(num_downloaded)+" new file(s) downloaded."
 
     if not (rT == False):
         print "\n\tUpdating in " , rW
