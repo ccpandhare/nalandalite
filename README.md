@@ -1,32 +1,30 @@
-landa Lite (nalandalite)
----
+# Nalanda Lite (nalandalite)
 #### Because being lazy is Being _BITSian_!
 
 Update lecture slides with one click. Regular trips to Nalanda? Now Lite.
-Are you a gen BITSian? Do you download lecture slides just before your Compre/MidSem? Then Nalanda Lite is what you need. You shouldn't be wasting time downloading each and every slide, should you? So take visiting Nalanda _Lite_ and use Nalanda Lite.
+Are you a gen BITSian? Do you download lecture slides just before your Compre/MidSem? Then Nalanda Lite is what you need. You shouldn't be wasting time downloading each and every slide, should you? So take visiting Nalanda **Lite** and use Nalanda Lite.
 
-# Basic Usage
----
-  - Clone this Repository (or download a zipped version)
-  - Create a credentials.txt file in this folder. The first line of this file must have your username enclosed whithin two ^ characters. i.e. the first line must be \^your_Nalanda_username\^ and similarly, the second line of this file must be \^your_Nalanda_password\^.
-  - Do not worry! Your password is safe. It NEVER leaves your computer. It remains there.
-  - Go to the terminal and navigate to this folder ('nalandalite'). run "sudo pip install -r requirements.txt"
-  - Run "python nalanda.py"
-  - That's All!! Everytime you run _nalanda.py_, your lecture slides will be updated.
-  - A directory named COURSES will be created which will hold all your courses.
-  #### credentials.txt:
-  ```
-  ^f201xabc^
-  ^password^
-  ```
-  #### Terminal:
-  ```sh
-  ~ $ sudo pip install -r requirements.txt
-  nalandalite $ python nalanda.py
-  ```
+## Basic Usage
+1. Clone this Repository (or download a zipped version)
+2. Create a credentials.txt file in this folder. The first line of this file must have your username enclosed whithin two ^ characters. i.e. the first line must be \^your_Nalanda_username\^ and similarly, the second line of this file must be \^your_Nalanda_password\^.
+3. Do not worry! Your password is safe. It NEVER leaves your computer. It remains there.
+4. Go to the terminal and navigate to this folder ('nalandalite'). run "sudo pip install -r requirements.txt"
+5. Run "python nalanda.py"
+6. That's All!! Everytime you run _nalanda.py_, your lecture slides will be updated.
+7. A directory named COURSES will be created which will hold all your courses.
 
-# Dependancies
----
+#### credentials.txt:
+```
+^f201xabc^
+^password^
+```
+#### Terminal:
+```sh
+~ $ sudo pip install -r requirements.txt
+nalandalite $ python nalanda.py
+```
+
+## Dependancies
   - PIP (Python's package manager)
   - requests
   - BeautifulSoup
@@ -41,9 +39,8 @@ $ pip install beautifulsoup4
 $ pip install -r requirements.txt
 ```
 
-# Advanced Usage:
----
-### Arguements
+## Advanced Usage:
+#### Arguements
 You can give the script some arguements as per your need, for additional functionality.
 Arguements are given in argv format (i.e. separated by spaces) when running the _nalanda.py_ script. Currently supported arguements:
  - "users" : This will show the online users on nalanda. Note that when this arguement is given alone, slides aren't updated.
@@ -70,9 +67,7 @@ nalandalite $ python nalanda.py all r=1h debug
 ```
 
 # License
-----
 You are free to use any part of this code, as long as you credit the Author
 
 # Author
----
 Chinmay Pandhare, BITS Pilani.
