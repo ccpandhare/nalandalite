@@ -179,8 +179,14 @@ def main():
                             heading = str(lis.find("h3").text)+"\n"
                             for a in li.find_all("a"):
                                 articlelink = str(a['href'])
-                                articletitle = str(a.text.replace(a.find("span", {"class": "accesshide"}).text,""))
-                                articletype = str(a.find("span", {"class": "accesshide"}).text.replace(" ",""))
+                                if not str(a.find("span", {"class": "accesshide"})) == "None":
+                                    articletitle = str(a.text.replace(a.find("span", {"class": "accesshide"}).text,""))
+                                else:
+                                    articletitle = ""
+                                if not str(a.find("span", {"class": "accesshide"})) == "None":
+                                    articletype = str(a.find("span", {"class": "accesshide"}).text.replace(" ",""))
+                                else:
+                                    articletype = "None"
                             if str(li.find("span", {"class": "resourcelinkdetails"})) != "None":
                                 articledetails = str(li.find("span", {"class": "resourcelinkdetails"}).text)
                             else:
