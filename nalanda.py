@@ -209,7 +209,7 @@ def main():
                     val, resourcename = cgi.parse_header(file_to_download.headers['Content-Disposition'])
                     resourcename = resourcename['filename']
                 except:
-                    resourcename = "file.html"
+                    resourcename = re.compile("id=(....)").findall(article[3])[0] + "-" + "file.html"
                 #resourcename = re.compile("id=(....)").findall(article[3])[0] + "-" + resourcename;
 
                 path_to_file = 'COURSES/'+course[2]+'/'+resourcename
