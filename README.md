@@ -47,7 +47,7 @@ Arguements are given in argv format (i.e. separated by spaces) when running the 
  - "debug" : This will run nalanda.py in debug mode.
  - "getslides" : This arguement is assumend by default if no arguement is given to the script, or the only arguement given is "debug" or "r=_time_". This, as the name suggests, will fetch your slides for you.
  - "r=_time_" : this reloads the script every unit _time_. for example: "r=10s", "r=5m", "r=1h". s, m and h correspond to seconds, minutes and hours, repectively.
- - "all" : Combination of all arguements except "debug".
+ - "all" : Combination of all arguements except "debug"
 
 ```sh
 nalandalite $ python nalanda.py
