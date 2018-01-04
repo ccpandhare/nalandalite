@@ -1,6 +1,8 @@
 # Nalanda Lite (nalandalite)
 #### Because being lazy is Being _BITSian_!
 
+UPDATE: This doesn't work after the recent makeover of Nalanda (they basically upgraded their moodle) in 2017
+
 Update lecture slides with one click. Regular trips to Nalanda? Now Lite.
 Are you a gen BITSian? Do you download lecture slides just before your Compre/MidSem? Then Nalanda Lite is what you need. You shouldn't be wasting time downloading each and every slide, should you? So take visiting Nalanda **Lite** and use Nalanda Lite.
 
